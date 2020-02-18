@@ -24,6 +24,7 @@ class AttractionSerializer(serializers.HyperlinkedModelSerializer):
 
 class Attractions(ViewSet):
 
+    # Handles GET one
     def retrieve(self, request, pk=None):
         """Handle GET requests for single attraction
 
@@ -38,6 +39,7 @@ class Attractions(ViewSet):
         except Exception as ex:
             return HttpResponseServerError(ex)
 
+    # Handles GET all
     def list(self, request):
         """Handle GET requests to park attractions resource
 
@@ -52,5 +54,22 @@ class Attractions(ViewSet):
             attractions = attractions.filter(area__id=area)
 
         serializer = AttractionSerializer(attractions, many=True, context={'request': request})
+
+        return Response(serializer.data)
+
+    # Handles POST
+    def create(self, request):
+        """Handle POST operations
+
+        Returns:
+            Response -- JSON serialized Attraction instance
+        """
+        new_attaction = Attraction()
+        new_attaction.name = request.data["name"]
+        new_attaction.area_id = request.data["area"]
+
+        new_attaction.save()
+
+        serializer = AttractionSerializer(new_attaction, context={'request': request})
 
         return Response(serializer.data)
